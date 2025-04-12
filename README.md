@@ -1,12 +1,13 @@
-# Feedback App (3-Tier Kubernetes Project)
+# 📬 Feedback App (3-Tier Kubernetes Project with CI/CD)
 
 A fully containerized and Kubernetes-ready feedback application consisting of:
 
-- 🖼️ **Frontend**: Static HTML, CSS, JavaScript served with NGINX  
+- 🖼️ **Frontend**: React app served via NGINX  
 - 🧠 **Backend**: Python Flask REST API  
-- 🛢️ **Database**: PostgreSQL 13
+- 🛢️ **Database**: PostgreSQL 13  
+- 🔁 **CI/CD**: Azure DevOps YAML pipelines with self-hosted EC2 agents  
 
-This project is perfect for DevOps demos, Kubernetes practice, and CI/CD hands-on learning.
+Perfect for DevOps demos, Kubernetes practice, and hands-on CI/CD pipelines.
 
 ---
 
@@ -15,7 +16,7 @@ This project is perfect for DevOps demos, Kubernetes practice, and CI/CD hands-o
 ```
 User Browser
     ↓
-[ Frontend Service (NGINX) - Port 80 ]
+[ Frontend Service (React + NGINX) - Port 80 ]
     ↓ /api/*
 [ Backend Service (Flask) - Port 5000 ]
     ↓
@@ -26,48 +27,50 @@ User Browser
 
 ## ⚙️ Tech Stack
 
-| Layer     | Technology             |
-|-----------|------------------------|
-| Frontend  | HTML/CSS/JS, NGINX     |
-| Backend   | Python 3.9, Flask      |
-| Database  | PostgreSQL 13          |
-| Containers| Docker                 |
-| Orchestration | Kubernetes         |
-| Local Dev | Docker Desktop + K8s   |
+| Layer         | Technology                 |
+|---------------|----------------------------|
+| Frontend      | React, served by NGINX     |
+| Backend       | Python 3.9, Flask API      |
+| Database      | PostgreSQL 13              |
+| CI/CD         | Azure DevOps Pipelines     |
+| Containers    | Docker                     |
+| Orchestration | Kubernetes (Amazon EKS)    |
+| Local Dev     | Docker Desktop + K8s       |
 
 ---
 
 ## 📝 Features
 
-- Submit feedback messages via frontend  
+- Submit feedback messages via the React UI  
 - Retrieve and list feedback from PostgreSQL  
-- Delete messages via UI 
+- Delete feedback messages through the UI  
+- Containerized build & deploy pipeline with approvals and gating  
 
 ---
 
 ## 🚀 Build & Push Docker Images
 
-> Replace `<your-dockerhub-username>` with your actual Docker Hub account.
+> Replace `<your-dockerhub-username>` with your Docker Hub account name.
 
-### 🔧 Backend
+### 🧠 Backend
 ```bash
 cd src/feedback_backend
-docker build -t <your-dockerhub-username>/feedback-backend:latest .
-docker push <your-dockerhub-username>/feedback-backend:latest
+docker build -t <your-dockerhub-username>/feedback-backend:<tag> .
+docker push <your-dockerhub-username>/feedback-backend:<tag>
 ```
 
-### 🎨 Frontend
+### 🖼️ Frontend
 ```bash
 cd src/feedback_frontend
-docker build -t <your-dockerhub-username>/feedback-frontend:latest .
-docker push <your-dockerhub-username>/feedback-frontend:latest
+docker build -t <your-dockerhub-username>/feedback-frontend:<tag> .
+docker push <your-dockerhub-username>/feedback-frontend:<tag>
 ```
 
 ---
 
-## ☸️ Kubernetes Deployment (Docker Desktop K8s)
+## ☸️ Kubernetes Deployment (EKS or Docker Desktop)
 
-### 1️⃣ Create DB Secret and ConfigMap (if not already created)
+### 1️⃣ Create DB Secret and ConfigMap
 ```bash
 kubectl apply -f k8s/db-secret.yaml
 kubectl apply -f k8s/postgres-init-configmap.yaml
@@ -81,18 +84,37 @@ kubectl apply -f k8s/
 > This deploys:
 > - Frontend Deployment + Service  
 > - Backend Deployment + Service  
-> - PostgreSQL Deployment + Service   
-> - Secrets and ConfigMap
+> - PostgreSQL Deployment + Service  
+> - Secrets and ConfigMaps  
 
 ---
 
 ## 🌐 Access the Application
 
-### 💻 Frontend UI
+### 🖥️ Via NodePort
+```bash
+kubectl get nodes -o wide
+# Use a node's public IP and port 30080
+http://<NODE_PUBLIC_IP>:30080
+```
+
+### 💻 Local Test (Port-forwarding)
 ```bash
 kubectl port-forward svc/frontend-service 8081:80
 ```
 ➡️ Open in browser: [http://localhost:8081](http://localhost:8081)
+
+---
+
+## 🔁 Azure DevOps Pipeline (CI/CD)
+
+- Lint and test the backend
+- Build and push backend/frontend Docker images
+- Replace image tag using token replacement
+- Deploy to Kubernetes with conditional production deployment
+- Manual validation before production rollout
+
+CI/CD pipeline defined in `azure-pipelines.yaml`.
 
 ---
 
@@ -101,7 +123,7 @@ kubectl port-forward svc/frontend-service 8081:80
 ```
 .
 ├── README.md
-├── azure-pipelines.yml
+├── azure-pipelines.yaml
 ├── k8s/
 │   ├── backend-deployment.yaml
 │   ├── db-secret.yaml
@@ -109,20 +131,43 @@ kubectl port-forward svc/frontend-service 8081:80
 │   ├── postgres-deployment.yaml
 │   └── postgres-init-configmap.yaml
 │
-├── requirements.txt
 ├── src/
 │   ├── feedback_backend/
 │   │   ├── app.py
-│   │   ├── __init__.py
-│   │   └── Dockerfile
+│   │   ├── Dockerfile
 │   ├── feedback_frontend/
-│   │   ├── index.html
+│   │   ├── public/
+│   │   ├── src/
 │   │   ├── nginx.conf
 │   │   └── Dockerfile
 │   └── feedback_db/
 │       └── init.sql
 │
 └── tests/
-    ├── __pycache__/
     └── test_app.py
 ```
+
+---
+
+## 🧪 Local Development
+
+### Backend
+```bash
+cd src/feedback_backend
+pip install -r requirements.txt
+python app.py
+```
+
+### Frontend
+```bash
+cd src/feedback_frontend
+npm install
+npm start
+```
+
+---
+
+## 🙌 Feedback & Contributions
+
+Pull requests and ideas welcome!  
+Star the repo if you found it useful ⭐
