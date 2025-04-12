@@ -1,0 +1,83 @@
+/* App.css */
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f2f4f8;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 50px;
+    margin: 0;
+  }
+  
+  h1 {
+    color: #222;
+    margin-bottom: 20px;
+  }
+  
+  form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+  
+  input[type="text"] {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 300px;
+    transition: border 0.3s ease;
+  }
+  
+  input[type="text"]:focus {
+    border-color: #006eff;
+    outline: none;
+  }
+  
+  button {
+    padding: 10px 20px;
+    background-color: #006eff;
+    border: none;
+    color: white;
+    font-size: 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  button:hover {
+    background-color: #0052cc;
+  }
+  
+  ul {
+    list-style: none;
+    padding: 0;
+    width: 400px;
+  }
+  
+  li {
+    background: #ffffff;
+    padding: 12px 15px;
+    margin-bottom: 10px;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    color: #444;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .delete-btn {
+    background: #ff4d4f;
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .delete-btn:hover {
+    background: #cc0000;
+  }
+  
