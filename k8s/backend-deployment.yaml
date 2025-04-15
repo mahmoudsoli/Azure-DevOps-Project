@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: ahmedhedihed/feedback-backend:${BUILD_BUILDID}
+        image: ahmedhedihed/feedback-backend:81
         ports:
         - containerPort: 5000
         env:
