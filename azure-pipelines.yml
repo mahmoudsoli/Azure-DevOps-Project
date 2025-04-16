@@ -20,17 +20,13 @@ pool:
 #  - prod
 
 stages:
-- stage: CI_Stage
-  displayName: 'Build Stage'
+- stage: CI
+  displayName: CI stage
   jobs:
   - job: Lint
-    displayName: 'Linting Job'
+    displayName: Linting Backend
     steps:
     - checkout: self
-    - script: |
-        sudo apt-get update
-        sudo apt-get install -y libpython3.9
-      displayName: 'Install missing dependencies'
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.9'
