@@ -27,6 +27,11 @@ stages:
     displayName: 'Linting Job'
     steps:
     - checkout: self
+    steps:
+    - script: |
+        sudo apt-get update
+        sudo apt-get install -y libpython3.9
+      displayName: 'Install missing dependencies'
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '3.9'
