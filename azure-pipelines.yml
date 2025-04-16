@@ -39,9 +39,9 @@ stages:
       displayName: 'Run Linting'
 
   - job: Test
+    dependson: Lint
     displayName: Testing Backend
     steps:
-    - dependson: Lint
     - checkout: self
     - task: UsePythonVersion@0
       inputs:
