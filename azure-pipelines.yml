@@ -37,3 +37,21 @@ stages:
         pip install flake8
         flake8 src/feedback_backend/app.py
       displayName: 'Run Linting'
+
+  - job: Test
+    displayName: Testing Backend
+    steps:
+    - dependson: Lint
+    - checkout: self
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.9.22'
+        addToPath: true
+    - script: |
+        python3.9 -m venv .venv
+        source .venv/bin/activate
+        pip install -r src/feedback_backend/requirements.txt
+        pip install pytest
+        pytest
+      displayName: 'Run Unit Test'
+      #workingDirectory: $(Build.SourcesDirectory)
