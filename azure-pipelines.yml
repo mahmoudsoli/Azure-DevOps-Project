@@ -8,7 +8,7 @@ trigger:
 pool:
   name: ec2-self-hosted
 
-variables:
+#variables:
 
 #parameters:
 #- name: envronment  
