@@ -39,7 +39,7 @@ stages:
       displayName: 'Run Linting'
 
   - job: Test
-    dependson: Lint
+    dependsOn: Lint
     displayName: Testing Backend
     steps:
     - checkout: self
