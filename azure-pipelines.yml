@@ -36,4 +36,4 @@ stages:
         source .venv/bin/activate
         pip install flake8
         flake8 src/feedback_backend/app.py
-      displayName: 'Run unit tests'
+      displayName: 'Run Linting'
