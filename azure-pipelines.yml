@@ -1,14 +1,39 @@
 # Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
 trigger:
-- feat/setup
+    branches:
+      include:
+        - main
 
 pool:
   name: ec2-self-hosted
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+variables:
+
+#parameters:
+#- name: envronment  
+#  type: string  
+#  default: dev
+#  values:  
+#  - dev
+#  - stagging
+#  - prod
+
+stages:
+- stage: CI_Stage
+  displayName: 'Build Stage'
+  jobs:
+  - job: Lint
+    displayName: 'Linting Job'
+    steps:
+    - checkout: self
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.9'
+        addToPath: true
+    - script: |
+        python3.9 -m venv .venv
+        source .venv/bin/activate
+        pip install flake8
+        flake8 src/feedback_backend/app.py
+      displayName: 'Run unit tests'
