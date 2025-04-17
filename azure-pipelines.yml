@@ -45,6 +45,7 @@ stages:
     - script: |
         python3.9 -m venv .venv
         source .venv/bin/activate
+        export PYTHONPATH=$PYTHONPATH:$(Build.SourcesDirectory)/src
         pip install -r src/feedback_backend/requirements.txt
         pip install pytest
         pytest
