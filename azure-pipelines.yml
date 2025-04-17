@@ -8,16 +8,19 @@ trigger:
 pool:
   name: ec2-self-hosted
 
-#variables:
+variables:
+  dockerHubNamespace: 'msoliman427'
+  dockerRegistryServiceConnection: 'dockerhub-service-conn'
+  buildId: $(Build.BuildId)
 
-#parameters:
-#- name: envronment  
-#  type: string  
-#  default: dev
-#  values:  
-#  - dev
-#  - stagging
-#  - prod
+parameters:
+- name: envronment  
+  type: string  
+  default: dev
+  values:  
+  - dev
+  - stagging
+  - prod
 
 stages:
 - stage: CI
@@ -54,4 +57,30 @@ stages:
         pip install pytest
         pytest
       displayName: 'Run Unit Test'
-      #workingDirectory: $(Build.SourcesDirectory)
+      workingDirectory: $(Build.SourcesDirectory)
+
+  - job: Build
+    dependsOn: [Lint,Test]
+    displayName: Build and Push
+    steps:
+    - checkout: self
+    
+    - task: Docker@2
+      displayName: Build and Push Backend Image
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)
+        command: 'buildAndPush'
+        Dockerfile: 'src/feedback_backend/Dockerfile'
+        tags: $(Build.BuildId)
+        buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
+
+    - task: Docker@2
+      displayname: build and push frontend image
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)
+        command: 'buildAndPush'
+        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
+        tags: $(Build.BuildId)
+        buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
