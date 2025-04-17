@@ -76,7 +76,7 @@ stages:
         buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
 
     - task: Docker@2
-      displayname: build and push frontend image
+      displayName: build and push frontend image
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: $(dockerHubNamespace)
