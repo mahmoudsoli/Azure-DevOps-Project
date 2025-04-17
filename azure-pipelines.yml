@@ -1,9 +1,9 @@
 # Starter pipeline
 
 trigger:
-    branches:
-      include:
-        - main
+  branches:
+    include:
+      - main
 
 pool:
   name: ec2-self-hosted
@@ -18,9 +18,9 @@ parameters:
   type: string  
   default: dev
   values:  
-  - dev
-  - stagging
-  - prod
+    - dev
+    - stagging
+    - prod
 
 stages:
 - stage: CI
@@ -30,12 +30,8 @@ stages:
     displayName: Linting Backend
     steps:
     - checkout: self
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.9.22'
-        addToPath: true
     - script: |
-        python3.9.22 -m venv .venv
+        python3.9 -m venv .venv
         source .venv/bin/activate
         pip install flake8
         flake8 src/feedback_backend/app.py
@@ -46,14 +42,12 @@ stages:
     displayName: Testing Backend
     steps:
     - checkout: self
-    - task: UsePythonVersion@0
     - script: |
         python3.9 -m venv .venv
         source .venv/bin/activate
         pip install -r src/feedback_backend/requirements.txt
         pip install pytest
-        export PYTHONPATH=src
-        pytest tests
+        pytest
       displayName: 'Run Unit Test'
       workingDirectory: $(Build.SourcesDirectory)
 
