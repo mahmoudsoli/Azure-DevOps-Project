@@ -32,7 +32,7 @@ stages:
     - checkout: self
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '3.9.22'
+        versionSpec: '3.9'
         addToPath: true
     - script: |
         python3.9 -m venv .venv
