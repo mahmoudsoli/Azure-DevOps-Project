@@ -62,7 +62,7 @@ stages:
       displayName: Build and Push Backend Image
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: $(dockerHubNamespace)
+        repository: $(dockerHubNamespace)/feedback-backend
         command: 'buildAndPush'
         Dockerfile: 'src/feedback_backend/Dockerfile'
         tags: $(Build.BuildId)
@@ -72,7 +72,7 @@ stages:
       displayName: build and push frontend image
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: $(dockerHubNamespace)
+        repository: $(dockerHubNamespace)/feedback-frontend
         command: 'buildAndPush'
         Dockerfile: 'src/feedback_frontend/src/Dockerfile'
         tags: $(Build.BuildId)
