@@ -52,7 +52,8 @@ stages:
         source .venv/bin/activate
         pip install -r src/feedback_backend/requirements.txt
         pip install pytest
-        pytest
+        export PYTHONPATH=src
+        pytest tests
       displayName: 'Run Unit Test'
       workingDirectory: $(Build.SourcesDirectory)
 
