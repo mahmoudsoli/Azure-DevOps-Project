@@ -55,7 +55,6 @@ stages:
     displayName: Build and Push
     steps:
     - checkout: self
-    
     - task: Docker@2
       displayName: Build and Push Backend Image
       inputs:
@@ -75,39 +74,39 @@ stages:
         Dockerfile: 'src/feedback_frontend/src/Dockerfile'
         tags: $(Build.BuildId)
         buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
-    
+
 - stage: CD
   displayName: CD stage
   dependsOn: CI
   jobs:
   - deployment: DeployToK8S
     displayName: Deploy to K8S
-    environment: dev
+    environment: ${{ parameters.environment }}
     strategy:
-        runOnce:
-            deploy:
-                steps:
-                - checkout: self
-                - task: ReplaceTokens@5
-                  inputs:
-                    rootDirectory: '$(Build.SourcesDirectory)/k8s'
-                    targetFiles: "**/*.yaml"
-                    tokenPattern: custom
-                    tokenPrefix: '${'
-                    tokenSuffix: '}'
-                    verbosity: detailed
-                    escapeType: json
+      runOnce:
+        deploy:
+          steps:
+          - checkout: self
+          - task: ReplaceTokens@5
+            inputs:
+              rootDirectory: '$(Build.SourcesDirectory)/k8s'
+              targetFiles: "**/*.yaml"
+              tokenPattern: custom
+              tokenPrefix: '${'
+              tokenSuffix: '}'
+              verbosity: detailed
+              escapeType: json
 
-                - task: Bash@3
-                  displayName: Apply Kubernetes Manifests
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      kubectl apply -f $(Build.SourcesDirectory)/k8s
+          - task: Bash@3
+            displayName: Apply Kubernetes Manifests
+            inputs:
+              targetType: 'inline'
+              script: |
+                kubectl apply -f $(Build.SourcesDirectory)/k8s
 
-                - task: Bash@3
-                  displayName: Show Kubernetes Resources
-                  inputs:
-                    targetType: 'inline'
-                    script: |
-                      kubectl get all
+          - task: Bash@3
+            displayName: Show Kubernetes Resources
+            inputs:
+              targetType: 'inline'
+              script: |
+                kubectl get all
