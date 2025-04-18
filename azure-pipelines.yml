@@ -74,6 +74,6 @@ stages:
         containerRegistry: $(dockerRegistryServiceConnection)
         repository: $(dockerHubNamespace)/feedback-frontend
         command: 'buildAndPush'
-        Dockerfile: 'src/feedback_frontend/Dockerfile'
+        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
         tags: $(Build.BuildId)
         buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
