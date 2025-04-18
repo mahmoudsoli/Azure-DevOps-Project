@@ -14,7 +14,7 @@ variables:
   buildId: $(Build.BuildId)
 
 parameters:
- name: environment  
+  name: environment  
   type: string  
   default: dev
   values:  
