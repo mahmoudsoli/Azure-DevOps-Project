@@ -13,14 +13,14 @@ variables:
   dockerRegistryServiceConnection: 'dockerhub-service-conn'
   buildId: $(Build.BuildId)
 
-#parameters:
-# name: environment  
-#  type: string  
-#  default: dev
-#  values:  
-#    - dev
-#    - stagging
-#    - prod
+parameters:
+ name: environment  
+  type: string  
+  default: dev
+  values:  
+    - dev
+    - stagging
+    - prod
 
 stages:
 - stage: CI
@@ -84,6 +84,7 @@ stages:
   jobs:
   - deployment: DeployToK8S
     displayName: Deploy to K8S
+    environment: ${{ parameters.environment }}
     strategy:
         runOnce:
             deploy:
