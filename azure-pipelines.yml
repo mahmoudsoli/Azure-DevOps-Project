@@ -84,7 +84,7 @@ stages:
   jobs:
   - deployment: DeployToK8S
     displayName: Deploy to K8S
-    environment: ${{ parameters.environment }}
+    environment: dev
     strategy:
         runOnce:
             deploy:
