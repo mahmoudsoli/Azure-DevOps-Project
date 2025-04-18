@@ -14,10 +14,10 @@ variables:
   buildId: $(Build.BuildId)
 
 parameters:
-  name: environment  
-  type: string  
+- name: environment
+  type: string
   default: dev
-  values:  
+  values:
     - dev
     - stagging
     - prod
