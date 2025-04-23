@@ -79,34 +79,36 @@ stages:
   displayName: CD stage
   dependsOn: CI
   jobs:
-  - deployment: DeployToK8S
-    displayName: Deploy to K8S
+  - deployment: DeployToEKS
+    displayName: Deploy to EKS
     environment: ${{ parameters.environment }}
     strategy:
-      runOnce:
-        deploy:
-          steps:
-          - checkout: self
-          - task: ReplaceTokens@5
-            inputs:
-              rootDirectory: '$(Build.SourcesDirectory)/k8s'
-              targetFiles: "**/*.yaml"
-              tokenPattern: custom
-              tokenPrefix: '${'
-              tokenSuffix: '}'
-              verbosity: detailed
-              escapeType: json
+        runOnce:
+            deploy:
+                steps:
+                - checkout: self
+                - task: ReplaceTokens@5
+                  inputs:
+                    rootDirectory: '$(Build.SourcesDirectory)/k8s'
+                    targetFiles: "**/*.yaml"
+                    tokenPattern: custom
+                    tokenPrefix: '${'
+                    tokenSuffix: '}'
+                    verbosity: detailed
+                    escapeType: json
 
-          - task: Bash@3
-            displayName: Apply Kubernetes Manifests
-            inputs:
-              targetType: 'inline'
-              script: |
-                kubectl apply -f $(Build.SourcesDirectory)/k8s
+                - task: AWSShellScript@1
+                  displayName: 'Login to EKS Cluster'
+                  inputs:
+                    awsCredentials: 'aws-eks-service-connection'   # replace with your real connection name
+                    regionName: 'us-east-1'
+                    scriptType: 'inline'
+                    inlineScript: |
+                      echo "Logging in to EKS cluster"
+                      aws eks update-kubeconfig \
+                        --region us-east-1 \
+                        --name eks-stagging-cluster
 
-          - task: Bash@3
-            displayName: Show Kubernetes Resources
-            inputs:
-              targetType: 'inline'
-              script: |
-                kubectl get all
+                - script: |
+                    kubectl apply -f $(Build.SourcesDirectory)/k8s/ -n ${{ parameters.environment }}
+                  displayName: 'Deploy to EKS with kubectl'
