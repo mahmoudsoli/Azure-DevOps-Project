@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: msoliman427/feedback-backend:${BUILD_BUILDID}
+        image: ahmedhedihed/feedback-backend:81
         ports:
         - containerPort: 5000
         env:
@@ -31,10 +31,7 @@ kind: Service
 metadata:
   name: backend-service
 spec:
-  type: NodePort
   selector:
     app: backend
   ports:
     - port: 5000
-      targetPort: 5000
-      nodePort: 30500  
