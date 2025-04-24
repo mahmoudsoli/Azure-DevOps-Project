@@ -31,12 +31,10 @@ stages:
       name: ec2-self-hosted   
     steps:
     - checkout: self
-
     - script: |
-        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz \
-          | tar xz
-        chmod +x gitleaks
-        mv gitleaks /usr/local/bin/
+        echo "🔍 Installing Gitleaks..."
+        curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.0.0/gitleaks-linux-amd64 -o /usr/local/bin/gitleaks
+        chmod +x /usr/local/bin/gitleaks
       displayName: 'Install Gitleaks'
 
     - script: |
