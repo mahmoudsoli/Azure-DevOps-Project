@@ -130,7 +130,14 @@ CI/CD pipeline defined in `azure-pipelines.yaml`.
 │   ├── frontend-deployment.yaml
 │   ├── postgres-deployment.yaml
 │   └── postgres-init-configmap.yaml
-│
+├── Ansible-code/
+│   ├── setup.sh
+│   └── setup.yml
+├── Terrafom-code/
+│   ├── EKS.tf
+│   ├── ec2-user-data.sh
+│   ├── main.tf 
+│   └── variables.tf
 ├── src/
 │   ├── feedback_backend/
 │   │   ├── app.py
