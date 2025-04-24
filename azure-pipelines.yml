@@ -32,7 +32,6 @@ stages:
     steps:
     - checkout: self
     - script: |
-        echo "🔍 Installing Gitleaks..."
         curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v8.0.0/gitleaks-linux-amd64" \
           -o $(Build.SourcesDirectory)/tools/gitleaks
         chmod +x $(Build.SourcesDirectory)/tools/gitleaks
@@ -41,8 +40,6 @@ stages:
 
 
     - script: |
-        echo "🔍 Running Gitleaks scan..."
-        # تفحص الريبو الحالي وتصدر تقرير SARIF
         gitleaks detect \
           --report-format=sarif \
           --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
@@ -120,15 +117,7 @@ stages:
         repository: $(dockerHubNamespace)/feedback-backend
         command: 'push'
         tags: $(Build.BuildId)
-#    - task: Docker@2
-#      displayName: Build and Push Backend Image
-#      inputs:
-#        containerRegistry: '$(dockerRegistryServiceConnection)'
-#        repository: $(dockerHubNamespace)/feedback-backend
-#        command: 'buildAndPush'
-#        Dockerfile: 'src/feedback_backend/Dockerfile'
-#        tags: $(Build.BuildId)
-#        buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
+
   - job: BuildFeedBackFrontImage
     dependsOn: [Lint, Test]
     displayName: 'Build feedback_front Image'
@@ -171,15 +160,6 @@ stages:
         repository: $(dockerHubNamespace)/feedback-frontend
         command: 'push'
         tags: $(Build.BuildId)
-#    - task: Docker@2
-#      displayName: Build and Push Frontend Image
-#      inputs:
-#        containerRegistry: $(dockerRegistryServiceConnection)
-#        repository: $(dockerHubNamespace)/feedback-frontend
-#        command: 'buildAndPush'
-#        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
-#        tags: $(Build.BuildId)
-#        buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
 
 - stage: CD
   displayName: CD stage
