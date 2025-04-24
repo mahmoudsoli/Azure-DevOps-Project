@@ -51,20 +51,55 @@ stages:
       displayName: 'Run Unit Test'
       workingDirectory: $(Build.SourcesDirectory)
 
-  - job: Build
-    dependsOn: [Lint,Test]
-    displayName: Build and Push
+  - job: BuildFeedBackImage
+    dependsOn: [Lint, Test]
+    displayName: 'Build feedback_backend Image'
     steps:
     - checkout: self
     - task: Docker@2
-      displayName: Build and Push Backend Image
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: $(dockerHubNamespace)/feedback-backend
-        command: 'buildAndPush'
+        command: 'build'
         Dockerfile: 'src/feedback_backend/Dockerfile'
-        tags: $(Build.BuildId)
         buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
+        tags: $(Build.BuildId)
+
+  - job: ScanFeedBackImage
+    dependsOn: [BuildFeedBackImage]
+    displayName: 'Scan Backend Image with Trivy'
+    steps:
+    - checkout: self
+    - script: |
+        if ! command -v trivy &> /dev/null
+        then
+          echo "Installing Trivy..."
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+        fi
+
+        echo "Scanning the image..."
+        ./trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
+
+  - job: PushFeedBackImage
+    dependsOn: [ScanFeedBackImage]
+    displayName: 'Push feedback_backend Image'
+    steps:
+    - checkout: self
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)/feedback-backend
+        command: 'push'
+        tags: $(Build.BuildId)
+#    - task: Docker@2
+#      displayName: Build and Push Backend Image
+#      inputs:
+#        containerRegistry: '$(dockerRegistryServiceConnection)'
+#        repository: $(dockerHubNamespace)/feedback-backend
+#        command: 'buildAndPush'
+#        Dockerfile: 'src/feedback_backend/Dockerfile'
+#        tags: $(Build.BuildId)
+#        buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
 
     - task: Docker@2
       displayName: Build and Push Frontend Image
