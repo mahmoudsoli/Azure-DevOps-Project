@@ -25,6 +25,31 @@ stages:
 - stage: CI
   displayName: CI stage
   jobs:
+  - job: ScanRepoSecrets
+    displayName: 'Scan Repo for Secrets with Gitleaks'
+    pool:
+      name: ec2-self-hosted   
+    steps:
+    - checkout: self
+
+    - script: |
+        curl -sSL https://github.com/gitleaks/gitleaks/releases/latest/download/gitleaks-linux-amd64.tar.gz \
+          | tar xz
+        chmod +x gitleaks
+        mv gitleaks /usr/local/bin/
+      displayName: 'Install Gitleaks'
+
+    - script: |
+        gitleaks detect \
+          --path=$(Build.SourcesDirectory) \
+          --report-format=sarif \
+          --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
+      displayName: 'Run Gitleaks Detect'
+
+    - publish: $(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
+      artifact: gitleaks-report
+      displayName: 'Publish Gitleaks Report'
+
   - job: Lint
     displayName: Linting Backend
     steps:
