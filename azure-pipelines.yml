@@ -25,6 +25,29 @@ stages:
 - stage: CI
   displayName: CI stage
   jobs:
+  - job: ScanRepoSecrets
+    displayName: 'Scan Repo for Secrets with Gitleaks'
+    pool:
+      name: ec2-self-hosted   
+    steps:
+    - checkout: self
+    - script: |
+        curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v8.0.0/gitleaks-linux-amd64" \
+          -o $(Build.SourcesDirectory)/tools/gitleaks
+        chmod +x $(Build.SourcesDirectory)/tools/gitleaks
+        export PATH=$PATH:$(Build.SourcesDirectory)/tools
+      displayName: 'Install Gitleaks'
+
+
+    - script: |
+        gitleaks detect \
+          --report-format=sarif \
+          --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
+      displayName: 'Run Gitleaks Detect'
+
+    - publish: $(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
+      artifact: gitleaks-report
+      displayName: 'Publish Gitleaks Report'
   - job: Lint
     displayName: Linting Backend
     steps:
@@ -51,30 +74,92 @@ stages:
       displayName: 'Run Unit Test'
       workingDirectory: $(Build.SourcesDirectory)
 
-  - job: Build
-    dependsOn: [Lint,Test]
-    displayName: Build and Push
+  - job: BuildFeedBackBackEndImage
+    dependsOn: [Lint, Test]
+    displayName: 'Build feedback_backend Image'
     steps:
     - checkout: self
     - task: Docker@2
-      displayName: Build and Push Backend Image
       inputs:
         containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: $(dockerHubNamespace)/feedback-backend
-        command: 'buildAndPush'
+        command: 'build'
         Dockerfile: 'src/feedback_backend/Dockerfile'
-        tags: $(Build.BuildId)
         buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
-
-    - task: Docker@2
-      displayName: Build and Push Frontend Image
-      inputs:
-        containerRegistry: $(dockerRegistryServiceConnection)
-        repository: $(dockerHubNamespace)/feedback-frontend
-        command: 'buildAndPush'
-        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
         tags: $(Build.BuildId)
+
+  - job: ScanFeedBackBackEndImage
+    dependsOn: [BuildFeedBackBackEndImage]
+    displayName: 'Scan Backend Image with Trivy'
+    steps:
+    - checkout: self
+    - script: |
+        if ! command -v trivy &> /dev/null
+        then
+          echo "Installing Trivy..."
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+        fi
+
+        export PATH=$PATH:$(pwd)/bin
+
+        echo "Scanning the image..."
+        trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
+
+
+  - job: PushFeedBackBackEndImage
+    dependsOn: [ScanFeedBackBackEndImage]
+    displayName: 'Push feedback_backend Image'
+    steps:
+    - checkout: self
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)/feedback-backend
+        command: 'push'
+        tags: $(Build.BuildId)
+
+  - job: BuildFeedBackFrontImage
+    dependsOn: [Lint, Test]
+    displayName: 'Build feedback_front Image'
+    steps:
+    - checkout: self
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)/feedback-frontend
+        command: 'build'
+        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
         buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
+        tags: $(Build.BuildId)
+
+  - job: ScanFeedBackFrontImage
+    dependsOn: [BuildFeedBackFrontImage]
+    displayName: 'Scan frontend Image with Trivy'
+    steps:
+    - checkout: self
+    - script: |
+        if ! command -v trivy &> /dev/null
+        then
+          echo "Installing Trivy..."
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+        fi
+
+        export PATH=$PATH:$(pwd)/bin
+
+        echo "Scanning the image..."
+        trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-frontend:$(Build.BuildId)
+
+  - job: PushFeedBackFrontImage
+    dependsOn: [ScanFeedBackFrontImage]
+    displayName: 'Push feedback_frontend Image'
+    steps:
+    - checkout: self
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)/feedback-frontend
+        command: 'push'
+        tags: $(Build.BuildId)
 
 - stage: CD
   displayName: CD stage
@@ -101,7 +186,7 @@ stages:
                 - task: AWSShellScript@1
                   displayName: 'Login to EKS Cluster'
                   inputs:
-                    awsCredentials: 'aws-eks-service-connection'   # replace with your real connection name
+                    awsCredentials: 'aws-eks-service-connection'   
                     regionName: 'us-east-1'
                     scriptType: 'inline'
                     inlineScript: |
