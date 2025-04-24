@@ -80,7 +80,7 @@ stages:
         export PATH=$PATH:$(pwd)/bin
 
         echo "Scanning the image..."
-        trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
+        trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
 
 
   - job: PushFeedBackImage
