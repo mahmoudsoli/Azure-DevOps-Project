@@ -77,8 +77,11 @@ stages:
           curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
         fi
 
+        export PATH=$PATH:$(pwd)/bin
+
         echo "Scanning the image..."
-        ./trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
+        trivy image --exit-code 1 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
+
 
   - job: PushFeedBackImage
     dependsOn: [ScanFeedBackImage]
@@ -101,15 +104,15 @@ stages:
 #        tags: $(Build.BuildId)
 #        buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
 
-    - task: Docker@2
-      displayName: Build and Push Frontend Image
-      inputs:
-        containerRegistry: $(dockerRegistryServiceConnection)
-        repository: $(dockerHubNamespace)/feedback-frontend
-        command: 'buildAndPush'
-        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
-        tags: $(Build.BuildId)
-        buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
+  - task: Docker@2
+    displayName: Build and Push Frontend Image
+    inputs:
+      containerRegistry: $(dockerRegistryServiceConnection)
+      repository: $(dockerHubNamespace)/feedback-frontend
+      command: 'buildAndPush'
+      Dockerfile: 'src/feedback_frontend/src/Dockerfile'
+      tags: $(Build.BuildId)
+      buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
 
 - stage: CD
   displayName: CD stage
