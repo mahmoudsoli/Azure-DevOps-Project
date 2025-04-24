@@ -113,7 +113,7 @@ stages:
         containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: $(dockerHubNamespace)/feedback-frontend
         command: 'build'
-        Dockerfile: 'src/feedback_frontend/Dockerfile'
+        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
         buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
         tags: $(Build.BuildId)
 
