@@ -1,14 +1,22 @@
-FROM debian:bookworm-slim 
-#FROM python:3.9-slim
+FROM debian:bookworm-slim
+
+# 1. نثبت Python و pip وننظف الـ apt cache لتقليل الحجم
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      python3 python3-pip \
+ && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copy from the actual root
+# 2. ننسخ ملف المتطلبات
 COPY requirements.txt .
 
-RUN pip install -r requirements.txt
-RUN pip install --upgrade setuptools==70.0.0
+# 3. نثبت الحزم عبر pip3
+RUN python3 -m pip install --no-cache-dir -r requirements.txt \
+ && python3 -m pip install --no-cache-dir --upgrade setuptools==70.0.0
 
+# 4. ننسخ باقي الكود
 COPY . .
 
-CMD ["python", "app.py"]
+# 5. نشغّل التطبيق
+CMD ["python3", "app.py"]
