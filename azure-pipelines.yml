@@ -48,6 +48,7 @@ stages:
     - publish: $(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
       artifact: gitleaks-report
       displayName: 'Publish Gitleaks Report'
+      
   - job: Lint
     displayName: Linting Backend
     steps:

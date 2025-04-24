@@ -1,0 +1,14 @@
+---
+- name: Setup EC2 instance with tools
+  hosts: devops-instance
+  become: true
+
+  tasks:
+    - name: Copy setup script to EC2
+      copy:
+        src: ./setup.sh
+        dest: /tmp/setup.sh
+        mode: '0755'
+
+    - name: Run setup script
+      shell: bash /tmp/setup.sh
