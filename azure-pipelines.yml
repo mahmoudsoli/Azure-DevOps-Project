@@ -42,13 +42,15 @@ stages:
 
     - script: |
         echo "🔍 Running Gitleaks scan..."
-        gitleaks detect --repo=$(Build.SourcesDirectory) --report-format=sarif --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
+        # تفحص الريبو الحالي وتصدر تقرير SARIF
+        gitleaks detect \
+          --report-format=sarif \
+          --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
       displayName: 'Run Gitleaks Detect'
 
     - publish: $(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
       artifact: gitleaks-report
       displayName: 'Publish Gitleaks Report'
-
   - job: Lint
     displayName: Linting Backend
     steps:
