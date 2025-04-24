@@ -51,7 +51,7 @@ stages:
       displayName: 'Run Unit Test'
       workingDirectory: $(Build.SourcesDirectory)
 
-  - job: BuildFeedBackImage
+  - job: BuildFeedBackBackEndImage
     dependsOn: [Lint, Test]
     displayName: 'Build feedback_backend Image'
     steps:
@@ -65,8 +65,8 @@ stages:
         buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
         tags: $(Build.BuildId)
 
-  - job: ScanFeedBackImage
-    dependsOn: [BuildFeedBackImage]
+  - job: ScanFeedBackBackEndImage
+    dependsOn: [BuildFeedBackBackEndImage]
     displayName: 'Scan Backend Image with Trivy'
     steps:
     - checkout: self
@@ -83,8 +83,8 @@ stages:
         trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-backend:$(Build.BuildId)
 
 
-  - job: PushFeedBackImage
-    dependsOn: [ScanFeedBackImage]
+  - job: PushFeedBackBackEndImage
+    dependsOn: [ScanFeedBackBackEndImage]
     displayName: 'Push feedback_backend Image'
     steps:
     - checkout: self
@@ -103,16 +103,57 @@ stages:
 #        Dockerfile: 'src/feedback_backend/Dockerfile'
 #        tags: $(Build.BuildId)
 #        buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
-
+  - job: BuildFeedBackFrontImage
+    dependsOn: [Lint, Test]
+    displayName: 'Build feedback_front Image'
+    steps:
+    - checkout: self
     - task: Docker@2
-      displayName: Build and Push Frontend Image
       inputs:
-        containerRegistry: $(dockerRegistryServiceConnection)
+        containerRegistry: '$(dockerRegistryServiceConnection)'
         repository: $(dockerHubNamespace)/feedback-frontend
-        command: 'buildAndPush'
-        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
-        tags: $(Build.BuildId)
+        command: 'build'
+        Dockerfile: 'src/feedback_frontend/Dockerfile'
         buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
+        tags: $(Build.BuildId)
+
+  - job: ScanFeedBackFrontImage
+    dependsOn: [BuildFeedBackFrontImage]
+    displayName: 'Scan frontend Image with Trivy'
+    steps:
+    - checkout: self
+    - script: |
+        if ! command -v trivy &> /dev/null
+        then
+          echo "Installing Trivy..."
+          curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh
+        fi
+
+        export PATH=$PATH:$(pwd)/bin
+
+        echo "Scanning the image..."
+        trivy image --exit-code 0 --severity HIGH,CRITICAL --no-progress $(dockerHubNamespace)/feedback-frontend:$(Build.BuildId)
+
+  - job: PushFeedBackFrontImage
+    dependsOn: [ScanFeedBackFrontImage]
+    displayName: 'Push feedback_frontend Image'
+    steps:
+    - checkout: self
+    - task: Docker@2
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: $(dockerHubNamespace)/feedback-frontend
+        command: 'push'
+        tags: $(Build.BuildId)
+#    - task: Docker@2
+#      displayName: Build and Push Frontend Image
+#      inputs:
+#        containerRegistry: $(dockerRegistryServiceConnection)
+#        repository: $(dockerHubNamespace)/feedback-frontend
+#        command: 'buildAndPush'
+#        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
+#        tags: $(Build.BuildId)
+#        buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
 
 - stage: CD
   displayName: CD stage
@@ -139,7 +180,7 @@ stages:
                 - task: AWSShellScript@1
                   displayName: 'Login to EKS Cluster'
                   inputs:
-                    awsCredentials: 'aws-eks-service-connection'   # replace with your real connection name
+                    awsCredentials: 'aws-eks-service-connection'   
                     regionName: 'us-east-1'
                     scriptType: 'inline'
                     inlineScript: |
