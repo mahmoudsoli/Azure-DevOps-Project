@@ -34,8 +34,9 @@ stages:
     - script: |
         echo "🔍 Installing Gitleaks..."
         curl -sSL "https://github.com/gitleaks/gitleaks/releases/download/v8.0.0/gitleaks-linux-amd64" \
-          -o /usr/bin/gitleaks
-        chmod +x /usr/bin/gitleaks
+          -o $(Build.SourcesDirectory)/tools/gitleaks
+        chmod +x $(Build.SourcesDirectory)/tools/gitleaks
+        export PATH=$PATH:$(Build.SourcesDirectory)/tools
       displayName: 'Install Gitleaks'
 
 
