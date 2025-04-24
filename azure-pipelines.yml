@@ -104,15 +104,15 @@ stages:
 #        tags: $(Build.BuildId)
 #        buildContext: '$(Build.SourcesDirectory)/src/feedback_backend'
 
-  - task: Docker@2
-    displayName: Build and Push Frontend Image
-    inputs:
-      containerRegistry: $(dockerRegistryServiceConnection)
-      repository: $(dockerHubNamespace)/feedback-frontend
-      command: 'buildAndPush'
-      Dockerfile: 'src/feedback_frontend/src/Dockerfile'
-      tags: $(Build.BuildId)
-      buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
+    - task: Docker@2
+      displayName: Build and Push Frontend Image
+      inputs:
+        containerRegistry: $(dockerRegistryServiceConnection)
+        repository: $(dockerHubNamespace)/feedback-frontend
+        command: 'buildAndPush'
+        Dockerfile: 'src/feedback_frontend/src/Dockerfile'
+        tags: $(Build.BuildId)
+        buildContext: '$(Build.SourcesDirectory)/src/feedback_frontend'
 
 - stage: CD
   displayName: CD stage
