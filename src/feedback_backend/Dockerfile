@@ -1,19 +1,12 @@
-FROM debian:bookworm-slim
-
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      python3 python3-venv python3-pip && \
-    rm -rf /var/lib/apt/lists/*
+FROM python:3.9-slim
 
 WORKDIR /app
 
-# أنشئ VirtualEnv
-RUN python3 -m venv /opt/venv
-ENV PATH="/opt/venv/bin:$PATH"
-
+# Copy from the actual root
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt \
- && pip install --no-cache-dir --upgrade setuptools==70.0.0
+
+RUN pip install -r requirements.txt
 
 COPY . .
+
 CMD ["python", "app.py"]
