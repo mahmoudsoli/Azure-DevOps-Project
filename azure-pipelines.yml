@@ -32,10 +32,11 @@ stages:
     steps:
     - checkout: self
     - script: |
-        echo "🔍 Installing Gitleaks..."
-        curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.0.0/gitleaks-linux-amd64 -o /usr/local/bin/gitleaks
-        chmod +x /usr/local/bin/gitleaks
-      displayName: 'Install Gitleaks'
+      echo "🔍 Installing Gitleaks..."
+      curl -sSL https://github.com/gitleaks/gitleaks/releases/download/v8.0.0/gitleaks-linux-amd64 -o /usr/bin/gitleaks
+      chmod +x /usr/bin/gitleaks
+    displayName: 'Install Gitleaks'
+
 
     - script: |
         gitleaks detect \
