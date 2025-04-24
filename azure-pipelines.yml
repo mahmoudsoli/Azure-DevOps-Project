@@ -41,10 +41,8 @@ stages:
 
 
     - script: |
-        gitleaks detect \
-          --path=$(Build.SourcesDirectory) \
-          --report-format=sarif \
-          --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
+        echo "🔍 Running Gitleaks scan..."
+        gitleaks detect --repo=$(Build.SourcesDirectory) --report-format=sarif --report-path=$(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
       displayName: 'Run Gitleaks Detect'
 
     - publish: $(Build.ArtifactStagingDirectory)/gitleaks-report.sarif
