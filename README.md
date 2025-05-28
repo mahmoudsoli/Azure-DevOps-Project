@@ -22,7 +22,8 @@ User Browser
     ↓
 [ PostgreSQL Service - Port 5432 ]
 ```
-
+---
+![Demo](assets/feedback.gif)
 ---
 
 ## ⚙️ Tech Stack
